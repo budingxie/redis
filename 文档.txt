@@ -1,0 +1,45 @@
+epoll的3个api函数
+// 创建epoll实例，通过一棵红黑树管理待检测集合
+int epoll_create(int size);
+// 管理红黑树上的文件描述符（添加、修改、删除）
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+// 检测epoll树中是否有就绪的文件描述符
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+
+
+
+
+redis中事件驱动只关注 网络IO、定时器
+
+
+aeEventLoop 事件管理器
+
+文件事件：用于处理Redis服务器和客户端之间的网络IO
+时间事件：Redis服务器中的一些操作（比如serverCron函数）需要在给定时间点执行，而时间事件就是处理这类定时操作的。
+
+
+Redis基于Reactor模式开发了自己的网络事件处理器，也就是文件事件处理器。
+文件事件处理器使用IO多路复用技术，同时监听多个套接字，并为套接字关联不同的事件处理器函数。
+当套接字的可读或者可写事件触发时，就会调用相应的事件处理函数。
+
+Redis使用的IO多路复用技术有：select、epoll、evport、kqueue等。每个IO多路复用函数库在Redis源码中都对应一个单独的文件，
+比如ae_select.c、ae_epoll.c、ae_kqueue.c等。Redis会根据不同的操作系统，按照不同的优先级选择多路复用技术。事件响应框架一般都采用该架构，比如netty、libevent。
+
+
+客户端向服务端发起建立socket连接的请求，那么监听套接字将产生 AE_READABLE事件，触发连接应答处理器执行。
+处理器会对客户端的连接请求进行应答，然后创建客户端套接字，一级客户端状态，并将客户端套接字的AE_READABLE事件与名利请求处理器关联。
+
+客户端建立连接后，向服务器发送命令，那么客户端套接字将产生 AE_READABLE 事件，触发命令请求处理器执行，处理器读取客户端命令，然后传递给相关程序去执行。
+
+
+
+
+数据结构
+1、String
+2、List
+3、Set
+4、ZSet
+5、Hash
+
+
+
